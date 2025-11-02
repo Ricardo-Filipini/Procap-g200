@@ -514,13 +514,12 @@ export const SourcesView: React.FC<SourcesViewProps> = ({ appData, setAppData, c
 
     const sortedSources = useMemo(() => {
         let items = [...appData.sources].filter(s => s.materia !== 'Mídia');
+        // FIX: Refactor switch statement to explicitly return from each case, helping TypeScript's type inference.
         switch (sort) {
             case 'time':
-                items.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-                break;
+                return items.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
             case 'temp':
-                items.sort((a, b) => (b.hot_votes - b.cold_votes) - (a.hot_votes - a.cold_votes));
-                break;
+                return items.sort((a, b) => (b.hot_votes - b.cold_votes) - (a.hot_votes - a.cold_votes));
             case 'subject':
                 const grouped = items.reduce((acc, item) => {
                     const groupKey = item.materia || 'Outros';
@@ -530,8 +529,9 @@ export const SourcesView: React.FC<SourcesViewProps> = ({ appData, setAppData, c
                 }, {} as Record<string, Source[]>);
                 Object.values(grouped).forEach(group => group.sort((a, b) => (b.hot_votes - b.cold_votes) - (a.hot_votes - a.cold_votes)));
                 return grouped;
+            default:
+                return items;
         }
-        return items;
     }, [appData.sources, sort]);
 
     const renderSourceItem = (source: Source) => {
