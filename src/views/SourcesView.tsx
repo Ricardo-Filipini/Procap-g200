@@ -512,112 +512,19 @@ export const SourcesView: React.FC<SourcesViewProps> = ({ appData, setAppData, c
 
     const sortedSources = useMemo(() => {
         let items = [...appData.sources].filter(s => s.materia !== 'Mídia');
-        // FIX: Refactor switch statement to explicitly return from each case, helping TypeScript's type inference.
         switch (sort) {
             case 'time':
-                return items.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+                items.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+                break;
             case 'temp':
-                return items.sort((a, b) => (b.hot_votes - b.cold_votes) - (a.hot_votes - a.cold_votes));
+                items.sort((a, b) => (b.hot_votes - b.cold_votes) - (a.hot_votes - a.cold_votes));
+                break;
             case 'subject':
-                const grouped = items.reduce((acc, item) => {
-                    const groupKey = item.materia || 'Outros';
-                    if (!acc[groupKey]) acc[groupKey] = [];
-                    acc[groupKey].push(item);
-                    return acc;
-                }, {} as Record<string, Source[]>);
-                Object.values(grouped).forEach(group => group.sort((a, b) => (b.hot_votes - b.cold_votes) - (a.hot_votes - a.cold_votes)));
-                return grouped;
-            default:
-                return items;
+                items.sort((a, b) => a.materia.localeCompare(b.materia));
+                break;
         }
+        return items;
     }, [appData.sources, sort]);
-
-    const renderSourceItem = (source: Source) => {
-        const userVote = appData.userSourceVotes.find(v => v.user_id === currentUser.id && v.source_id === source.id);
-        return (
-         <div key={source.id} className="bg-card-light dark:bg-card-dark p-4 rounded-lg shadow-sm border border-border-light dark:border-border-dark">
-            <div className="flex justify-between items-start">
-                 <div>
-                    <h3 className="text-xl font-bold">{source.title}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{source.materia} &gt; {source.topic}</p>
-                    <p className="text-sm mt-2">{source.summary}</p>
-                </div>
-                {currentUser.id === source.user_id && (
-                    <div className="flex gap-2">
-                        <button onClick={() => { setSourceToRename(source); setNewSourceName(source.title); }} className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700" title="Renomear Fonte">
-                            <PencilIcon className="w-5 h-5"/>
-                        </button>
-                        <button onClick={() => setSourceToDelete(source)} className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700" title="Deletar Fonte">
-                            <TrashIcon className="w-5 h-5 text-red-500"/>
-                        </button>
-                    </div>
-                )}
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-center">
-                {['summaries', 'flashcards', 'questions', 'mind_maps'].map(type => {
-                    const content = source[type as keyof Source];
-                    const count = Array.isArray(content) ? content.length : 0;
-                    const isLoading = generatingMore?.sourceId === source.id && generatingMore?.type === type;
-                    const typeNameMap = { summaries: 'Resumos', flashcards: 'Flashcards', questions: 'Questões', mind_maps: 'Mapas Mentais' };
-                    const typeName = typeNameMap[type as keyof typeof typeNameMap];
-                    
-                    return (
-                        <button 
-                            key={type}
-                            onClick={() => handleGenerateMore(source, type as any)}
-                            disabled={isLoading}
-                            className="bg-background-light dark:bg-background-dark p-2 rounded-md hover:shadow-md transition-shadow disabled:opacity-50 disabled:cursor-not-allowed group relative"
-                        >
-                            {isLoading ? (
-                            <svg className="animate-spin h-6 w-6 mx-auto text-primary-light" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            ) : (
-                                <p className="font-semibold text-lg">{count}</p>
-                            )}
-                            <p className="text-xs">{typeName}</p>
-                            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-max p-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                Gerar mais com IA
-                            </div>
-                        </button>
-                    );
-                })}
-            </div>
-            <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border-light dark:border-border-dark text-sm">
-                <div className="flex items-center gap-3 relative">
-                    <button onClick={() => setActiveVote({ sourceId: source.id, type: 'hot' })} className="flex items-center gap-1 text-gray-500 hover:text-red-500">
-                        <span className="text-lg">🔥</span> {source.hot_votes || 0}
-                    </button>
-                    <button onClick={() => setActiveVote({ sourceId: source.id, type: 'cold' })} className="flex items-center gap-1 text-gray-500 hover:text-blue-500">
-                        <span className="text-lg">❄️</span> {source.cold_votes || 0}
-                    </button>
-                    {activeVote?.sourceId === source.id && (
-                        <div ref={votePopupRef} className="absolute -top-12 -left-2 z-10 bg-black/70 backdrop-blur-sm text-white rounded-full flex items-center p-1 gap-1 shadow-lg">
-                            <button onClick={() => handleSourceVote(source.id, activeVote.type, 1)} className="p-1 hover:bg-white/20 rounded-full"><PlusIcon className="w-4 h-4" /></button>
-                            <span className="text-sm font-bold w-4 text-center">{activeVote.type === 'hot' ? userVote?.hot_votes || 0 : userVote?.cold_votes || 0}</span>
-                            <button onClick={() => handleSourceVote(source.id, activeVote.type, -1)} className="p-1 hover:bg-white/20 rounded-full"><MinusIcon className="w-4 h-4" /></button>
-                        </div>
-                    )}
-                </div>
-                <div className="flex-grow" />
-                <div className="flex items-center gap-2 flex-wrap justify-end">
-                    {(source.storage_path || []).map((path, index) => {
-                        const filename = (source.original_filename || [])[index] || 'Abrir Arquivo';
-                        return (
-                            <button 
-                                key={path} 
-                                onClick={() => handleOpenSourceFile(path)} 
-                                className="text-gray-500 hover:text-primary-light flex items-center gap-1 text-sm"
-                                title={filename}
-                            >
-                                <DocumentTextIcon className="w-5 h-5"/> 
-                                <span className="hidden sm:inline truncate max-w-[120px]">{filename}</span>
-                            </button>
-                        )
-                    })}
-                </div>
-                <button onClick={() => setCommentingOn(source)} className="text-gray-500 hover:text-primary-light whitespace-nowrap">Comentários ({source.comments?.length || 0})</button>
-            </div>
-        </div>
-    )};
 
     return (
         <div className="space-y-6">
@@ -669,17 +576,92 @@ export const SourcesView: React.FC<SourcesViewProps> = ({ appData, setAppData, c
             )}
             
             <div className="space-y-4">
-                {Array.isArray(sortedSources)
-                    ? sortedSources.map(renderSourceItem)
-                    : Object.entries(sortedSources as Record<string, Source[]>).map(([groupKey, items]) => (
-                        <details key={groupKey} open className="bg-card-light dark:bg-card-dark p-4 rounded-lg shadow-sm border border-border-light dark:border-border-dark">
-                            <summary className="text-xl font-bold cursor-pointer">{groupKey}</summary>
-                            <div className="mt-4 pt-4 border-t border-border-light dark:border-border-dark space-y-4">
-                                {items.map(renderSourceItem)}
+                {sortedSources.map(source => {
+                    const userVote = appData.userSourceVotes.find(v => v.user_id === currentUser.id && v.source_id === source.id);
+                    return (
+                     <div key={source.id} className="bg-card-light dark:bg-card-dark p-4 rounded-lg shadow-sm border border-border-light dark:border-border-dark">
+                        <div className="flex justify-between items-start">
+                             <div>
+                                <h3 className="text-xl font-bold">{source.title}</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{source.materia} &gt; {source.topic}</p>
+                                <p className="text-sm mt-2">{source.summary}</p>
                             </div>
-                        </details>
-                    ))
-                }
+                            {currentUser.id === source.user_id && (
+                                <div className="flex gap-2">
+                                    <button onClick={() => { setSourceToRename(source); setNewSourceName(source.title); }} className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700" title="Renomear Fonte">
+                                        <PencilIcon className="w-5 h-5"/>
+                                    </button>
+                                    <button onClick={() => setSourceToDelete(source)} className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700" title="Deletar Fonte">
+                                        <TrashIcon className="w-5 h-5 text-red-500"/>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-center">
+                            {['summaries', 'flashcards', 'questions', 'mind_maps'].map(type => {
+                                const content = source[type as keyof Source];
+                                const count = Array.isArray(content) ? content.length : 0;
+                                const isLoading = generatingMore?.sourceId === source.id && generatingMore?.type === type;
+                                const typeNameMap = { summaries: 'Resumos', flashcards: 'Flashcards', questions: 'Questões', mind_maps: 'Mapas Mentais' };
+                                const typeName = typeNameMap[type as keyof typeof typeNameMap];
+                                
+                                return (
+                                    <button 
+                                        key={type}
+                                        onClick={() => handleGenerateMore(source, type as any)}
+                                        disabled={isLoading}
+                                        className="bg-background-light dark:bg-background-dark p-2 rounded-md hover:shadow-md transition-shadow disabled:opacity-50 disabled:cursor-not-allowed group relative"
+                                    >
+                                        {isLoading ? (
+                                        <svg className="animate-spin h-6 w-6 mx-auto text-primary-light" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        ) : (
+                                            <p className="font-semibold text-lg">{count}</p>
+                                        )}
+                                        <p className="text-xs">{typeName}</p>
+                                        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-max p-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                            Gerar mais com IA
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border-light dark:border-border-dark text-sm">
+                            <div className="flex items-center gap-3 relative">
+                                <button onClick={() => setActiveVote({ sourceId: source.id, type: 'hot' })} className="flex items-center gap-1 text-gray-500 hover:text-red-500">
+                                    <span className="text-lg">🔥</span> {source.hot_votes || 0}
+                                </button>
+                                <button onClick={() => setActiveVote({ sourceId: source.id, type: 'cold' })} className="flex items-center gap-1 text-gray-500 hover:text-blue-500">
+                                    <span className="text-lg">❄️</span> {source.cold_votes || 0}
+                                </button>
+                                {activeVote?.sourceId === source.id && (
+                                    <div ref={votePopupRef} className="absolute -top-12 -left-2 z-10 bg-black/70 backdrop-blur-sm text-white rounded-full flex items-center p-1 gap-1 shadow-lg">
+                                        <button onClick={() => handleSourceVote(source.id, activeVote.type, 1)} className="p-1 hover:bg-white/20 rounded-full"><PlusIcon className="w-4 h-4" /></button>
+                                        <span className="text-sm font-bold w-4 text-center">{activeVote.type === 'hot' ? userVote?.hot_votes || 0 : userVote?.cold_votes || 0}</span>
+                                        <button onClick={() => handleSourceVote(source.id, activeVote.type, -1)} className="p-1 hover:bg-white/20 rounded-full"><MinusIcon className="w-4 h-4" /></button>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex-grow" />
+                            <div className="flex items-center gap-2 flex-wrap justify-end">
+                                {(source.storage_path || []).map((path, index) => {
+                                    const filename = (source.original_filename || [])[index] || 'Abrir Arquivo';
+                                    return (
+                                        <button 
+                                            key={path} 
+                                            onClick={() => handleOpenSourceFile(path)} 
+                                            className="text-gray-500 hover:text-primary-light flex items-center gap-1 text-sm"
+                                            title={filename}
+                                        >
+                                            <DocumentTextIcon className="w-5 h-5"/> 
+                                            <span className="hidden sm:inline truncate max-w-[120px]">{filename}</span>
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                            <button onClick={() => setCommentingOn(source)} className="text-gray-500 hover:text-primary-light whitespace-nowrap">Comentários ({source.comments?.length || 0})</button>
+                        </div>
+                    </div>
+                )})}
             </div>
         </div>
     );
