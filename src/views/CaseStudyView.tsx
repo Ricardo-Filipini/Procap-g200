@@ -1,20 +1,20 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { MainContentProps } from '../components/MainContent';
-import { CaseStudy, DecisionOption, UserCaseStudyInteraction, Comment, Source, UserContentInteraction } from '../types';
+import { CaseStudy, DecisionOption, UserCaseStudyInteraction, Comment, Source, UserContentInteraction, AppData } from '../types';
 import { SparklesIcon, TrashIcon, CheckCircleIcon, XMarkIcon, CloudArrowUpIcon } from '../components/Icons';
 import { Modal } from '../components/Modal';
 import { generateCaseStudy } from '../services/geminiService';
-import { addCaseStudy, upsertUserCaseStudyInteraction, clearCaseStudyProgress, updateContentComments, upsertUserVote, incrementVoteCount, updateUser as supabaseUpdateUser } from '../services/supabaseClient';
+import { addCaseStudy, upsertUserCaseStudyInteraction, clearCaseStudyProgress, updateContentComments, incrementVoteCount, updateUser as supabaseUpdateUser } from '../services/supabaseClient';
 import { ContentActions } from '../components/shared/ContentActions';
 import { CommentsModal } from '../components/shared/CommentsModal';
-import { useContentViewController } from '../hooks/useContentViewController';
+import { useContentViewController } from '../../hooks/useContentViewController';
 import { ContentToolbar } from '../components/shared/ContentToolbar';
 import { handleInteractionUpdate } from '../lib/content';
 import { FontSizeControl, FONT_SIZE_CLASSES_LARGE } from '../components/shared/FontSizeControl';
 import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
 import * as mammoth from 'mammoth';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://aistudiocdn.com/pdfjs-dist@^4.4.168/build/pdf.worker.mjs`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://aistudiocdn.com/pdfjs-dist@^5.4.394/build/pdf.worker.mjs`;
 
 const extractTextFromFile = async (file: File): Promise<string> => {
     if (file.type === 'application/pdf') {
@@ -41,8 +41,8 @@ const extractTextFromFile = async (file: File): Promise<string> => {
 const CreateCaseStudyModal: React.FC<{
     isOpen: boolean;
     onClose: () => void;
-    appData: MainContentProps['appData'];
-    setAppData: MainContentProps['setAppData'];
+    appData: AppData;
+    setAppData: React.Dispatch<React.SetStateAction<AppData>>;
     currentUser: MainContentProps['currentUser'];
     setProcessingTasks: MainContentProps['setProcessingTasks'];
 }> = ({ isOpen, onClose, appData, setAppData, currentUser, setProcessingTasks }) => {
@@ -85,7 +85,6 @@ const CreateCaseStudyModal: React.FC<{
             let fullText = text.trim();
             if (files) {
                 setProcessingTasks(prev => prev.map(t => t.id === taskId ? {...t, message: 'Extraindo texto dos arquivos...' } : t));
-                // Fix: Explicitly type `fileArray` as `File[]` to prevent type inference issues.
                 const fileArray: File[] = Array.from(files);
                 const textPromises = fileArray.map(extractTextFromFile);
                 const texts = await Promise.all(textPromises);
@@ -156,7 +155,6 @@ const CreateCaseStudyModal: React.FC<{
                         <div className="mt-2">
                             <h4 className="font-semibold text-xs mb-1">Arquivos Selecionados:</h4>
                             <ul className="text-xs list-disc list-inside bg-background-light dark:bg-background-dark p-2 rounded-md">
-                                {/* FIX: Explicitly type `f` as `File` to allow access to `.name` property. */}
                                 {Array.from(files).map((f: File) => <li key={f.name}>{f.name}</li>)}
                             </ul>
                         </div>

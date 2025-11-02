@@ -5,7 +5,7 @@ import { CommentsModal } from '../components/shared/CommentsModal';
 import { ContentToolbar } from '../components/shared/ContentToolbar';
 import { FontSizeControl, FONT_SIZE_CLASSES } from '../components/shared/FontSizeControl';
 import { ContentActions } from '../components/shared/ContentActions';
-import { useContentViewController } from '../hooks/useContentViewController';
+import { useContentViewController } from '../../hooks/useContentViewController';
 import { handleInteractionUpdate, handleVoteUpdate } from '../lib/content';
 import { updateContentComments } from '../services/supabaseClient';
 
@@ -20,7 +20,7 @@ export const MindMapsView: React.FC<MindMapsViewProps> = ({ allItems, appData, s
 
     const {
         sort, setSort, filter, setFilter, favoritesOnly, setFavoritesOnly,
-        isFiltering, aiFilterIds,
+        aiFilterIds,
         processedItems, handleAiFilter, handleClearFilter,
     } = useContentViewController(allItems, currentUser, appData, contentType);
 

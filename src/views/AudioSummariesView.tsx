@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { MainContentProps } from '../components/MainContent';
-import { AudioSummary, Comment, ContentType, Source } from '../types';
+import { AudioSummary, Comment, ContentType, Source, AppData } from '../types';
 import { Modal } from '../components/Modal';
 import { CommentsModal } from '../components/shared/CommentsModal';
 import { ContentToolbar } from '../components/shared/ContentToolbar';
 import { FontSizeControl, FONT_SIZE_CLASSES } from '../components/shared/FontSizeControl';
 import { ContentActions } from '../components/shared/ContentActions';
-import { useContentViewController } from '../hooks/useContentViewController';
+import { useContentViewController } from '../../hooks/useContentViewController';
 import { handleInteractionUpdate, handleVoteUpdate } from '../lib/content';
 import { updateContentComments, addSource, updateSource, supabase, addAudioSummary } from '../services/supabaseClient';
 import { PlusIcon } from '../components/Icons';
@@ -14,7 +14,7 @@ import { PlusIcon } from '../components/Icons';
 const AddMediaModal: React.FC<{
     isOpen: boolean,
     onClose: () => void,
-    setAppData: React.Dispatch<React.SetStateAction<MainContentProps['appData']>>,
+    setAppData: React.Dispatch<React.SetStateAction<AppData>>,
     currentUser: MainContentProps['currentUser']
 }> = ({ isOpen, onClose, setAppData, currentUser }) => {
     const [file, setFile] = useState<File | null>(null);
@@ -120,7 +120,7 @@ export const AudioSummariesView: React.FC<AudioSummariesViewProps> = ({ allItems
 
     const {
         sort, setSort, filter, setFilter, favoritesOnly, setFavoritesOnly,
-        aiFilterIds, isFiltering,
+        aiFilterIds,
         processedItems, handleAiFilter, handleClearFilter,
     } = useContentViewController(allItems, currentUser, appData, contentType);
 

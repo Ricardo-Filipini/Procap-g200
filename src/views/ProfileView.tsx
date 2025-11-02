@@ -11,7 +11,6 @@ import { upsertUserVote, incrementVoteCount, updateContentComments, updateUser a
 
 type SortOption = 'temp' | 'time' | 'subject' | 'user' | 'source';
 
-// Fix: Changed 'user' to 'currentUser' to match MainContentProps.
 interface ProfileViewProps extends Pick<MainContentProps, 'currentUser' | 'appData' | 'setAppData' | 'updateUser'> {
   onNavigate: (viewName: string, term: string) => void;
 }

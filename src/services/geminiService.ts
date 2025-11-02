@@ -1,5 +1,3 @@
-
-
 import { GoogleGenAI, GenerateContentResponse, Type, Part, Modality } from "@google/genai";
 import { ContentType, Question, User, UserContentInteraction, UserQuestionAnswer, Source } from '../types';
 
@@ -73,7 +71,6 @@ export const generateQuestionsFromTopic = async (topic: string): Promise<any> =>
             },
         });
 
-        // Fix: Ensure response.text exists before parsing.
         if (response.text) {
           return JSON.parse(response.text);
         }
@@ -185,7 +182,6 @@ export const processAndGenerateAllContentFromSource = async (text: string, exist
             contents: prompt,
             config: { responseMimeType: "application/json", responseSchema: schema },
         });
-        // Fix: Ensure response.text exists before parsing.
         if (response.text) {
           return JSON.parse(response.text);
         }
@@ -315,7 +311,6 @@ export const filterItemsByPrompt = async (prompt: string, items: {id: string, te
                 }
             }
         });
-        // Fix: Explicitly type the parsed JSON to ensure `relevantIds` is a string array.
         if (!response.text) return [];
         const result = JSON.parse(response.text) as { relevantIds?: string[] };
         return result.relevantIds || [];
@@ -410,7 +405,6 @@ export const generateSpecificContent = async (
                 },
             },
         });
-        // Fix: Ensure response.text exists before parsing.
         if (!response.text) return { error: `Falha ao gerar ${type}.` };
         const result = JSON.parse(response.text);
         return result.generatedContent;
@@ -507,7 +501,6 @@ export const generateMoreContentFromSource = async (
             contents: prompt,
             config: { responseMimeType: "application/json", responseSchema: schema },
         });
-        // Fix: Ensure response.text exists before parsing.
         if (!response.text) return { error: "Falha ao explorar a fonte para mais conteúdo." };
         return JSON.parse(response.text);
     } catch (error) {
@@ -602,7 +595,6 @@ export const generateMoreMindMapTopicsFromSource = async (
             contents: prompt,
             config: { responseMimeType: "application/json", responseSchema: schema },
         });
-        // Fix: Ensure response.text exists before parsing.
         if (!response.text) return [];
         const result = JSON.parse(response.text);
         return result.mindMapTopics || [];
@@ -698,7 +690,6 @@ export const generateCaseStudy = async (text: string | null, sources: Source[], 
                 ...(text ? {} : { tools: [{googleSearch: {}}] })
             },
         });
-        // Fix: Ensure response.text exists before parsing.
         if (!response.text) return { error: "Falha ao gerar o estudo de caso." };
         const result = JSON.parse(response.text);
         // Gemini doesn't generate UUIDs, so let's add them here.

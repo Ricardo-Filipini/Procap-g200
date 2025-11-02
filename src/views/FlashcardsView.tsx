@@ -6,7 +6,7 @@ import { GenerateContentModal } from '../components/shared/GenerateContentModal'
 import { ContentToolbar } from '../components/shared/ContentToolbar';
 import { FontSizeControl, FONT_SIZE_CLASSES } from '../components/shared/FontSizeControl';
 import { ContentActions } from '../components/shared/ContentActions';
-import { useContentViewController } from '../hooks/useContentViewController';
+import { useContentViewController } from '../../hooks/useContentViewController';
 import { handleInteractionUpdate, handleVoteUpdate, handleGenerateNewContent } from '../lib/content';
 import { updateContentComments } from '../services/supabaseClient';
 
@@ -37,7 +37,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({ allItems, appDat
 
     const {
         sort, setSort, filter, setFilter, favoritesOnly, setFavoritesOnly,
-        aiFilterIds, isFiltering, isGenerating, setIsGenerating,
+        aiFilterIds, isGenerating, setIsGenerating,
         generateModalOpen, setGenerateModalOpen, generationPrompt,
         processedItems, handleAiFilter, handleClearFilter, handleOpenGenerateModal
     } = useContentViewController(allItems, currentUser, appData, contentType);

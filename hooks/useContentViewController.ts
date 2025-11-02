@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { AppData, User, ContentType } from '../types';
-import { filterItemsByPrompt } from '../services/geminiService';
+import { AppData, User, ContentType } from '../src/types';
+import { filterItemsByPrompt } from '../src/services/geminiService';
 
 type SortOption = 'temp' | 'time' | 'subject' | 'user' | 'source';
 type FilterStatus = 'all' | 'read' | 'unread';

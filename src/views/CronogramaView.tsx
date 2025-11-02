@@ -94,7 +94,7 @@ export const CronogramaView: React.FC<CronogramaViewProps> = (props) => {
                             <button
                                 key={day}
                                 onClick={() => setSelectedDate(date)}
-                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors relative ${FONT_SIZE_CLASSES_LARGE[fontSize]}
+                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors relative
                                     ${isSelected ? 'bg-primary-light text-white font-bold' : ''}
                                     ${!isSelected && isToday ? 'bg-secondary-light/20 text-secondary-dark font-bold' : ''}
                                     ${!isSelected && !isToday ? 'hover:bg-gray-100 dark:hover:bg-gray-700' : ''}
