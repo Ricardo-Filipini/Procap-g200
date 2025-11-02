@@ -4,18 +4,18 @@ import { VIEWS } from '../constants';
 import { Header } from './shared/Header';
 
 // Importando as novas views modularizadas
-import { AdminView } from './views/AdminView';
-import { SummariesView } from './views/SummariesView';
-import { FlashcardsView } from './views/FlashcardsView';
-import { QuestionsView } from './views/QuestionsView';
-import { MindMapsView } from './views/MindMapsView';
-import { AudioSummariesView } from './views/AudioSummariesView';
-import { CommunityView } from './views/CommunityView';
-import { ProfileView } from './views/ProfileView';
-import { SourcesView } from './views/SourcesView';
+import { AdminView } from '../views/AdminView';
+import { SummariesView } from '../views/SummariesView';
+import { FlashcardsView } from '../views/FlashcardsView';
+import { QuestionsView } from '../views/QuestionsView';
+import { MindMapsView } from '../views/MindMapsView';
+import { AudioSummariesView } from '../views/AudioSummariesView';
+import { CommunityView } from '../views/CommunityView';
+import { ProfileView } from '../views/ProfileView';
+import { SourcesView } from '../views/SourcesView';
 // Fix: Correctly import CaseStudyView from its new file.
-import { CaseStudyView } from './views/CaseStudyView';
-import { CronogramaView } from './views/CronogramaView';
+import { CaseStudyView } from '../views/CaseStudyView';
+import { CronogramaView } from '../views/CronogramaView';
 
 export interface MainContentProps {
   activeView: View;
