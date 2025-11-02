@@ -411,8 +411,10 @@ INSERT INTO public.schedule_events (id, date, start_time, end_time, title, profe
 ON CONFLICT (id) DO NOTHING;
 */
 
-const supabaseUrl = 'https://rwiagpksyjkxodlyrjaw.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3aWFncGtzeWpreG9kbHlyamF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NTU5NDMsImV4cCI6MjA3NTMzMTk0M30.HEJJqYpzVWmFs3rX6sIYtQf0xxfph3r2bZbjV-iVzHs';
+// Read variables from the environment
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
+
 
 export let supabase: SupabaseClient | null = null;
 
